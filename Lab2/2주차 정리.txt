@@ -1,0 +1,8 @@
+아나콘다에서 파이썬 사용하기
+> python
+
+아나콘다 파이썬 접속 끊기
+> Ctrl + Z  또는 quit()
+
+**Iris Dataset 중간고사 전에 과제 있음
+scikit-learn 도 필요하다. (import sklearn)
