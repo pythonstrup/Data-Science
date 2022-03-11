@@ -340,54 +340,316 @@ else:
 first_char = s and s[0]
 ```
 
-.. 이어서
+파이썬에는 리스트의 모든 항목이 참이라면 True를 반환해주는 all 함수와 적어도 하나의 항목이 참이라면 True를 반환해주는 함수 any가 있다.
 
+```python
+all([True, 1, {3}])     # True
+all([True, 1, {}])      # False
+any([True, 1, {}])      # True
+any([])                 # False
+```
 
 <br/>
 
-### 16. 
+### 16. 정렬
+
+<hr/>
+
+파이썬 리스트를 정렬하고 싶다면 sort()메소드를 사용하면 된다.
+만약 이미 만든 리스트를 망치고 싶지 않다면 sorted 함수를 이용해 새로운 리스트를 반환할 수도 있다.
+
+```python
+x = [4, 1, 3, 2]
+y = sorted(x)         # y = [1, 2, 3, 4], x는 그대로!
+x.sort()              # x = [1, 2, 3, 4]
+```
+
+기본적으로 위 메소드들은 리스트의 각 항목을 일일이 비교해서 오름차순으로 정렬해준다.
+만약 내림차순으로 정렬하고 싶다면 인자에 reverse=True를 추가해주면 된다.
+그리고 key를 이용해서 비교하는 기준을 바꿀 수 있다.
+
+```python
+# 절대값의 내림차순으로 리스트 정렬
+x = sorted([-4, 1, -2, 3], key=abs, reverse=True)  # [-4, 3, -2, 1]
+
+#빈도의 내림차순으로 단어와 빈도를 정렬
+wc = sorted(word_counts.items(),
+            key=lambda word_and_count: word_and_count[1],
+            reverse=True)
+```
+
+<br/>
+
+### 17. 리스트 컴프리헨션
+
+<hr/>
+
+기존의 리스트에서 특정 항목을 선택하거나 변환시킨 결과를 새로운 리스트에 저장해야 하는 경우가 자주 발생한다.
+가장 파이썬스럽게 처리하는 방법은 리스트 컴프리헨션(list comprehension)이다.
+
+```python
+even_numbers = [x for x in range(5) if x % 2 == 0]  # [0, 2, 4]
+squares = [x * x for x in range(5)]                 # [0, 1, 4, 9, 16]
+even_squares = [x for x in even_numbers]            # [0, 4, 16]
+```
+
+딕셔너리나 집합으로 변환시킬 수도 있다.
+
+```python
+square_dict = {x: x*x for x in range(5)}  # {0: 0, 1:1, 2:4, 3:9, 4:16}
+square_set = {x*x for x in [1, -1]}       # {1}
+```
+
+리스트에서 불필요한 값은 _(밑줄)로 표시한다.
+
+```python
+zeros = [0 for _ in range(5)]   # [0, 0, 0, 0, 0]
+```
+
+리스트 컴프리헨션은 여러 for을 포함할 수 있다.
+
+```python
+pairs = [(x, y)
+         for x in range(10)
+         for y in range(10)] # [(0,0), (0,1), ..., (9,9)] 총 100개
+```
+
+뒤에 나오는 for문은 앞에 나온 결과를 반복한다.
+
+```python
+# x < y인 경우만 넣기
+increasing_pairs = [(x, y)
+                     for x in range(10)
+                     for y in range(x+1, 10)]
+```
+
+<br/>
+
+### 18. 자동 테스트와 assert
+
+<hr/>
+
+코드가 제대로 작성되었는지 확인하려면 테스트를 진행해야한다.
+다양한 테스팅 프레임워크가 존재하지만 그 중 assert에 대해 알아보자.
+assert는 조건이 충족되지 않는다면 AssertinoError를 반환한다.
+
+```python
+assert 1 + 1 == 2
+assert 1 + 1 == 2, "1 + 1 should equal 2 but didn't"
+```
+위의 두 번째 예시는 조건이 충족되지 않았을 때, 출력하고 싶은 문구를 추가하는 방법이다.
+<br/><br/>
+이번엔 직접 작성한 함수를 테스팅해보자.
+
+```python
+def smallest_item(xs):
+    return min(xs)
+
+assert smallest_item([10, 20, 5, 40]) == 5
+assert smallest_item([10, 20, 5, 40]) == -1
+```
+
+아래와 같이 함수의 인자를 검증할 수도 있지만 많이 사용하지는 않는다.
+
+```python
+def smallest_item(xs):
+    assert xs, "empty list has no smallest item"
+    return min(xs)
+```
+
+<br/>
+
+### 19. 객체지향 프로그래밍
+
+<hr/>
+
+파이썬도 다른 언어처럼 클래스를 이용한 객체 지향 프로그래밍이 가능하다. 코드를 깔끔하고 간단하게 작성할 수 있도록 도와줄 것이다.
+모임에 몇 명이 참여했는지 확인하는 CountingClicker 클래스를 만든다고 해보자.
+이 클래스에는 참석자 수를 의미하는 count, count를 증가시키는 click 메소드, count를 반환해주는 read 메소드, 
+count를 0으로 재설정해주는 reset 메소드 등이 있다.
+
+```python
+class CountingClicker:
+    def __init__(self, count = 0):
+        self.count = count
+    
+    # __repr__는 클래스 인스턴스를 문자열 형태로 반환해주는 dunder 메소드
+    def __repr__(self):
+        return f"CountingClicker(count={self.count})"
+    
+    def click(self, num_times=1):
+        self.count += num_times
+
+    def read(self):
+        return self.count
+
+    def reset(self):
+        self.count = 0
+
+clicker = CountingClicker()
+# 클리커가 0으로 시작하는 지 검사
+assert clicker.read() == 0, "clicker should start with count 0"
+
+# 클리커의 click() 메소드가 제대로 실행됐는지 검증
+clicker.click()
+clicker.click()
+assert clicker.read() == 2, "after two clicks, clicker should have count 2"
+
+# 클리커의 reset() 메소드가 실행됐는지 검증
+clicker.reset()
+assert clicker.read() == 0, "after reset, clicker should be back to 0"
+```
+
+다른 언어와 마찬가지로 부모 클래스의 기능을 상속받는 서브클래스(subclass)를 사용할 수 있다.
+메소드를 오버라이딩하는 것도 가능하다.
+
+```python
+# CountingClicker 상속받기
+class NoResetClicker(CountingClicker):
+    # reset 오버라이딩해서 기능 없애기.
+    def reset(self):
+        pass
+```
+
+<br/>
+
+### 20. 이터레이터와 제너레이터
+
+<hr/>
+
+리스트는 순서나 인덱스(index)만 알고 있으면 쉽게 특정 항목을 가져올 수 있다는 장점이 있다.
+그런데 만약 10억 개의 항목을 가지는 리스트를 생성해본다고 해보자.
+장점이 약점으로 바뀌는 순간이다. 컴퓨터의 메모리가 부족해질 수 있다.
+앞부분의 몇몇 값만 필요한데도 10억 개의 항목을 갖는 리스트 전체를 생성하는 것은 매우 비효율적이다.<br/>
+제너레이터(generator)는 주로 for문을 이용해 반복할 수 있으며, 제너레이터의 각 항목은 필요한 순간에 그때그때 생성되기 때문에 메모리 효율성을 높일 수 있다.
+제너레이터를 만드는 한 가지 방법은 yield를 사용하는 것이다.
+
+```python
+def generate_range(n):
+    i = 0
+    while i < n:
+        yield i   # yield가 호출될 때마다 제너레이터에 해당 값을 생성
+        i += 1
+
+for i in generate_range(10):
+    print(f"i: {i}")
+```
+반복문은 yield로 반환되는 값이 없을 때까지 반환된 값을 차례로 하나씩 사용한다.
+이는 무한한 수열도 메모리의 제약을 받지 않고 구현할 수 있다는 것을 의미한다.<br/><br/>
+
+또 다른 방법은 괄호 안에 for문을 추가하는 방법으로 제너레이터를 만드는 것이다.
+물론 for문이나 next를 통해서 반복문이 시작되기 전까지는 제너레이터가 생성되지 않는다.
+이를 사용해 정교한 데이터 처리 파이프라인을 만들 수 있다.
+
+```python
+# 제너레이터 선언하기
+even_below_20 = (i for i in generate_range(20) if i % 2 == 0)
+
+# 실제로 반복문이 실행되기 전까지는 제너레이터가 생성되지 않는다.
+data = natural_numbers()
+evens = (x for x in data)
+even_squares = (x**2 for x in evens)
+even_squares_ending_in_six = (x for x in even_squares if x % 10 == 6)
+```
+
+<br/>
+종종 리스트나 제너레이터에서 항목을 하나씩 확인할 때, 항목의 순서를 반환할 수 있는데 
+enumerate 함수를 사용하면 (인덱스, 항목) 형태로 값을 반환할 수 있다.
+
+```python
+names = ["Alice", "Bob", "Charlie", "Debbie"]
+
+for i, name in enumerate(names):
+    print(f"name {i} is {name}")
+```
+
+<br/>
+
+### 21. 난수 생성
+
+<hr/>
+
+난수(random number)는 파이썬의 random 모듈을 이용해 생성할 수 있다.
+```python
+import random
+random.seed(10)  # 매번 동일한 결과를 반환해주는 설정
+
+four_uniform_randoms = [random.random() for _ in range(4)]
+# [0.5714025946899135, 0.4288890546751146, 0.5780913011344704, 0.20609823213950174]
+# 항상 똑같은 난수 배열이 반환된다.
+```
+
+random.seed()를 통해 매번 고정된 난수를 생성할 수 있다.
+
+```python
+random.seed(10)
+print(random.random())
+random.seed(10)
+print(random.random())
+```
+
+random.randrange() 메소드를 사용하면 범위에 해당하는 구간 안의 난수를 생성할 수 있다.
+
+```python
+random.randrange(10)    # 0~9 난수 생성
+random.randrange(3, 6)  # 3~5 난수 생성
+```
+
+random.shuffle() 메소드는 리스트의 항목을 임의의 순서로 섞어준다.
+```python
+myarr = [i for i in range(10)]
+random.shuffle(myarr)
+print(myarr)  # [9, 8, 4, 2, 5, 3, 1, 0, 7, 6] 
+# 사람마다 순서는 다 다를 것이다.
+```
+
+random.choice() 메소드는 리스트에서 랜덤으로 하나의 항목을 선택해준다.
+
+```python
+# 랜덤으로 myarr 리스트에 있는 숫자를 선택
+nubmer = random.choice(myarr)
+```
+
+random.sample() 메소드를 사용하면 리스트에서 중복이 허용되지 않는 임의의 표본 리스트를 만들 수 있다.
+만약 중복이 허용되는 임의의 표본리스트를 만들고 싶다면 random.choice를 여러 번 호출해 사용한다.
+
+```python
+# 로또 번호 뽑기 예시
+lottery_numbers = range(60)
+winning_numbers = random.sample(lottery_numbers, 6)
+```
+
+<br/>
+
+### 22.  정규표현식
+
+정규표현식(regular expressions, regex)를 사용하면 문자열을 찾을 수 있다.
+
+```python
+import re
+
+re_examples = [
+    not re.match("a", "cat"),
+    re.search("a", "cat"),
+    not re.search("c", "dog"),
+    3 == len(re.split("[ab]", "carbs")),
+    
+    "R-D-" == re.sub("[0-9]", "-", "R2D2")
+]
+
+assert all(re_examples), "all the regex examples should be True"
+```
+
+re.match 메소드는 문자열의 시작이 정규표현식과 같은지 비교하고, 
+re.search메소드는 문자열 전체에서 정규표현식과 같은 부분이 있는지 찾는다.<br/>
+정규문서: [파이썬 정규표현식](https://docs.python.org/3/library/re.html)
+
 
 <hr/>
 
 <br/>
 
-### 17. 
-
-<hr/>
-
-<br/>
-
-### 18. 
-
-<hr/>
-
-<br/>
-
-### 19. 
-
-<hr/>
-
-<br/>
-
-### 20. 
-
-<hr/>
-
-<br/>
-
-### 21. 
-
-<hr/>
-
-<br/>
-
-### 22. 
-
-<hr/>
-
-<br/>
-
-### 23. 
+### 23.
 
 <hr/>
 
