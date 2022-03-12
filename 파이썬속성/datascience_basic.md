@@ -649,27 +649,236 @@ re.search메소드는 문자열 전체에서 정규표현식과 같은 부분이
 
 <br/>
 
-### 23.
+### 23. 함수형 도구
 
 <hr/>
+
+partial, map, reduce, filter등을 메소드를 데이터 사이언스에 활용할 수 있지만
+for문과 리스트 컴프리헨션으로 충분히 대체할 수 있다.
 
 <br/>
 
 
-### 24. 
+### 24. zip과 인자 언패킹 
 
 <hr/>
+
+두 개 이상의 리스트를 서로 묶어주고 싶다면 zip을 사용하면 된다. zip은 여러 개의 
+리스트를 서로 상응하는 항목의 튜플로 구성된 리스트로 변환해준다.
+
+```python
+list1 = ['a', 'b', 'c']
+list2 = [1, 2, 3]
+
+mylist = [pair for pair in zip(list1, list2)]
+
+letters, numbers = zip(*mylist)
+```
+
+zip 메소드에서 "*"을 사용하면 인자 언패킹을 할 수 있다. 자주 사용하지는 않는다.
 
 <br/>
 
-### 25. 
+### 25. args와 kwargs
 
 <hr/>
+
+특정 함수 f를 입력하면 f의 결과를 두 배로 만드는 함수를 반환해주는 고차 함수를 만든다고 해보자.
+
+```python
+def double(f):
+    def g(x):
+        return 2 * f(x)
+    
+    # 새로운 함수를 반환
+    return g
+
+# 인자가 1개라면 정상 실행된다.
+def f1(x):
+    return x + 1
+
+g = double(f1)
+assert g(3) == 8, "(3+1) * 2 should equal 8"
+assert g(-1) == 0, "(-1+1) * 2 should equal 0"
+
+# 인자가 2개라면 문제가 발생한다.
+def f2(x, y):
+    return x + y
+
+g2 = double(f2)
+try:
+    g(1, 2)
+except TypeError:
+    print("as defined, g only takes one argument")
+```
+인자를 2개 받을 때의 문제를 해결하기 위해서는 임의의 수의 인자를 받는 함수를 만들어줘야 한다.
+인자 언패킹을 사용하면 임의의 수의 인자를 받는 함수를 만들 수 있다.
+
+```python
+def myfunc(*args, **kwargs):
+    print("unnamed:", args)
+    print("keyword args:", kwargs)
+
+myfunc(1, 2, key="word", key2="word2")
+```
+
+args는 이름이 없는 인자로 구성된 튜플이고, kwargs는 이름이 주어진 인자로 구성된 딕셔너리다.
+반대로, 정해진 인자가 있는 함수를 호출할 때도 리스트나 딕셔너리로 인자를 전달할 수 있다.
+
+````python
+def other_way_func(x, y, z):
+    return x + y + z
+
+x_y_list = [1, 2]
+z_dict = {"z": 3}
+assert other_way_func(*x_y_list, **z_dict) == 6, "1 + 2 + 3 should be 6"
+````
+
+이제 마지막으로, 처음 예시로 보여줬던 잘못된 함수를 맞게 고쳐보겠다.
+
+```python
+def f2(x, y):
+    return x + y
+
+def double_correct(f):
+    def g(*args, **kwargs):
+        return 2 * f(*args, **kwargs)
+    return g
+
+g = double_correct(f2)
+assert g(1, 2) == 6, "double should work now"
+```
 
 <br/>
 
-### 26. 
+### 26. 타입 어노테이션
 
 <hr/>
+
+파이썬은 동적 타입 언어다. 이는 변수를 올바르게만 사용한다면 변수의 타입은 신경쓰지 않아도 된다는 말이다.
+
+```python
+def add(a, b):
+    return a + b
+
+assert add(10, 5) == 15, "+ is valid for numbers"
+assert add([1,2], [3]) == [1,2,3], "+ is valid for lists"
+assert add("hi ", "there") == "hi there", "+ is valid for strings"
+```
+
+반면 정적 타입의 언어(C, C++, 자바 등등)은 모든 함수나 객체의 타입을 명시해야하는데, 
+파이썬에서도 타입을 명시할 수 있는 기능이 있다. 하지만 이렇게 명시된 타입은 실제로 아무런 기능도 하지 않는다.
+타입이 int로 명시된 함수여도 문자열을 더할 수도 있고 int형과 문자열을 더했다가 TypeError가 발생할 수도 있다.
+하지만 타입을 명시하면 좋은 이유는 4개나 있다.
+
+1. 문서를 작성할 때 중요하다.<br/>
+이론적이거나 수학적인 개념을 설명할 때 큰 도움이 된다. 아래의 코드를 살펴보자.
+두 번째의 함수가 활용할 때 도움이 될만한 정보를 제공한다.
+```python
+def dot_product(x, y): ...
+
+# Vector라는 것을 사전에 정의했다고 가정.
+def dot_product(x: Vector, y: Vector): ...
+```
+
+2. 에러검사에 도움이 된다.<br/>
+mypy 등의 도구를 통해 타입 체크를 할 수 있다. 예를 들어 mypy로 add("hi ", "there")가 포함되어 있는 파일을 검사한다고 해보자.
+그러면 아래와 같은 에러를 출력할 것이다.
+
+```python
+error: Argument 1 to "add" has incompatible type "str"; expected "int"
+```
+
+마치 assert로 테스트하는 것처럼 코드 안의 오류를 사전에 잡아낼 수 있다.
+
+3. 깔끔하고 이해하기 쉬운 함수를 만들 수 있다.
+
+```python
+from typing import Union
+
+def secretly_ugly_function(value, operation): ...
+
+def ugly_function(value: int, 
+                  operation: Union[str, int, float, bool]) -> int: ...
+```
+
+위 함수는 operation 인자는 str, int, float, bool 객체를 받을 수 있다.
+함수가 굉장히 복잡할 가능성이 크지만 타입이 명시되어 있으면, 훨씬 명확하게 코드를 파악할 수 있다.
+
+4. 에디터의 자동 완성 기능을 사용할 수 있다.<br/>
+자동 완성 기능을 사용할 수 있고, 타입 에러 또한 사전에 잡아낼 수 있다.
+또한, 코드를 더 빠르게 작성할 수 있게 도와준다.
+
+
+<br/>
+
+#### 26-1. 타입 어노테이션 작성법
+
+<hr/>
+int, bool, float 같은 기본적인 객체는 타입을 바로 명시해주면 된다. 리스트의 경우에는 어떻게 타입을 명시하는게 좋을까?
+
+```python
+def total(xs: list) -> float:
+    return sum(total)
+
+from typing import List
+def total(xs: List[float]) -> float:
+    return sum(total)
+```
+
+첫 번째 방법도 틀린 것은 아니지만, 두 번째 방식이 구체적으로 리스트의 타입을 명시할 수 있기 때문에 좋은 방법이다.
+<br/><br/>
+int형이나 str형 변수는 선언할 때 타입이 명확해지기 때문에 따로 어노테이션을 붙일 필요가 없지만,
+list를 사용하거나 None을 사용하면 타입형이 명확하지 않기 때문에 이럴 때 힌트를 줄 수 있다.
+
+```python
+from typing import Optional
+from typing import List
+
+values: List[int] = []
+best_so_far: Optional[float] = None  # float이나 None으로 타입 명시
+```
+
+```python
+from typing import Dict, Iterable, Tuple
+
+counts: Dict[str, int] = {'data': 1, 'science': 2}
+
+if lazy:
+    evens: Iterable[int] = (x for x in range(10) if x % 2 ==0)
+else:
+    evens = [0, 2, 4, 6, 8]
+
+triple: Tuple[int, float, int] = (10, 2.3, 5)
+```
+
+<br/>
+
+파이썬의 일급 함수(first-class function)에 대해서도 타입을 명시할 수 있다.
+
+```python
+from typing import Callable
+
+# repeater 함수가 문자열과 int를 인자로 받고
+# 문자열을 반환해준다는 것을 명시
+def twice(repeater: Callable[[str, int], str], s: str) -> str:
+    return repeater(s, 2)
+
+def comma_repeater(s: str, n: int) -> str:
+    n_copies = [s for _ in range(n)]
+    return ', '.join(n_copies)
+
+assert twice(comma_repeater, "type hints") == "type hints, type hints"
+```
+
+명시된 타입 자체도 파이썬 객체이기 때문에 변수로 선언할 수 있다.
+
+```python
+Number = int
+Numbers = List[Number]
+
+def total(xs: Numbers) -> Number:
+    return sum(xs)
+```
 
 <br/>
