@@ -1,11 +1,8 @@
-
 # 파이썬 속성 강좌
-
 
 ### 출처
 
 - "Data Science from scratch" - 저자 Joel Grus
-
 
 ### 1. 기본기 다지기
 
@@ -48,6 +45,7 @@ source deactivate
 ```
 
 여기에 더해 파이썬 셸인 IPython을 설치하면 좋을 것이다.
+
 ```shell
 python -m pip install ipython
 ```
@@ -58,10 +56,8 @@ python -m pip install ipython
 
 <hr/>
 
-다른 언어와는 다르게 파이썬에서는 들여쓰기를 통해 단락을 구분한다. 
+다른 언어와는 다르게 파이썬에서는 들여쓰기를 통해 단락을 구분한다.
 들여쓰기를 잘못하면 오류가 발생할 수 있기 때문에 주의해야 한다.
-
-
 
 ### 5. 모듈
 
@@ -69,6 +65,7 @@ python -m pip install ipython
 
 모듈을 사용할 때는 import를 사용해 불러온다.
 matplotlib 라이브러리로 데이터를 시각화할 때는 다음과 같은 별칭을 관습적으로 사용한다.
+
 ```python
 import matplotlib.pyplot as plt
 
@@ -78,12 +75,15 @@ plt.plot(...)
 <br/>
 
 특정기능만 필요하다면 전체 모듈을 부르지 않고 해당 기능만 명시해서 불러올 수도 있다.
+
 ```python
 from collections import defaultdict, Counter
 lookup = defaultdict(int)
 my_counter = Counter()
 ```
+
 가장 좋지 않은 방법은 모듈의 기능을 통째로 불러와서 기존의 변수를 덮어쓰는 것이다.
+
 ```python
 match = 10
 from re import *   # re 라이브러리에 match라는 함수가 있기 때문에 변수를 덮어쓴다.
@@ -95,12 +95,14 @@ print(match)       # <function match at ~~~~~~>
 <hr/>
 
 일반함수
+
 ```python
 def double(num):
     return num * 2
 ```
 
 람다함수
+
 ```python
 double = lambda x: x*2  # 좋은 방법은 아니다.
 ```
@@ -114,6 +116,7 @@ double = lambda x: x*2  # 좋은 방법은 아니다.
 작은 따옴표 혹은 큰 따옴표로 묶어 나타낸다.
 특수문자를 인코딩할 때는 \(역슬래쉬)를 붙여준다.
 문자열을 합치는 방법은 아래와 같다. ('+' 사용하기 or .format 사용하기)
+
 ```python
 first_name = "Joel"
 last_name = "Grus"
@@ -127,12 +130,66 @@ full_name1 = "{0} {1}".format(first_name, last_name)
 
 <hr/>
 
-예외처리를 위해 사용하는 것은 try & except 문이다.
+예외처리를 위해 사용하는 것은 try & except 문이다. 기본적인 형태는 아래와 같다.
+
 ```python
 try:
-    print(0 / 0)
-except ZeroDivisionError:
-    print("cannot divide by zero")
+    예외 발생 가능 코드
+except <Exception Type>:
+    예외 발생 시 대응하는 코드
+else:
+    예외가 발생하지 않을 때 동작하는 코드 - 별로 좋은 코드는 아님.
+finally:
+    예외 발생여부와 상관없이 수행되는 코드
+```
+
+<br/>
+
+- Built-in Exception의 종류
+
+|  Exception 이름   |                    설명                     |
+| :---------------: | :-----------------------------------------: |
+|     Exception     |             전체 Exception 포함             |
+|    IndexError     |        List의 Index 범위를 넘어갈 때        |
+|     NameError     |       존재하지 않는 변수를 호출할 대        |
+| ZeroDivisionError |            0으로 숫자를 나눌 때             |
+|    ValueError     | 변환할 수 없는 문자/숫자를 변환하려고 할 때 |
+| FileNotFoundError |       존재하지 않는 파일을 호출할 때        |
+
+아래는 0으로 나눴을 때의 예외처리를 보여주는 예시이다.
+
+```python
+for i in range(4):
+    try:
+        print(10 // i)
+    except ZeroDivisionError:
+        print("cannot divide by zero")
+```
+
+결과
+
+```
+>> cannot divide by zero
+>> 10
+>> 5
+>> 3
+```
+
+<br/>
+
+에러를 강제로 발생시키고 싶다면 아래와 같이 적어주면 된다.
+
+```python
+raise <ExceptionType> (예외정보)
+```
+
+```python
+value = "1234English"
+for digit in value:
+    if digit not in "0123456789":
+        raise ValueError("숫자값을 입력하지 않았습니다.")
+
+print("정수로 변환된 숫자:", int(value))
 ```
 
 <br/>
@@ -143,13 +200,16 @@ except ZeroDivisionError:
 
 파이썬의 가장 기본적인 데이터 구조이다. 리스트는 순서가 있는 자료의 집합이다.
 슬라이싱을 통해 원하는 자료를 분리하여 가져오는 것도 가능하다. (문자열도 슬라이싱이 가능하다!!)
+
 #### 리스트 안에서 항목의 존재 여부 확인
+
 ```python
 1 in [1, 2, 3]   #True
 0 in [1, 2, 3]   #False
 ```
 
 #### 리스트에 다른 리스트의 내용 추가하기
+
 ```python
 x = [1, 2, 3]
 x.extend([4, 5, 6]) # x는 [1, 2, 3, 4, 5, 6]이 된다.
@@ -166,7 +226,9 @@ y = x + [4, 5, 6]
 <hr/>
 
 변경할 수 없는 리스트이다. 대괄호 대신 소괄호를 사용한다. 함수에서 여러 개의 값을 반환할 때 튜플을 사용하면 편리하다.
+
 #### 리스트와 튜플은 다중할당 지원
+
 ```python
 x, y = 1, 2
 x, y = y, x
@@ -179,25 +241,33 @@ x, y = y, x
 <hr/>
 
 기본적인 데이터 구조로 특정 값(value)과 연관된 키(key)를 연결해 값을 빠르게 검색할 수 있다.
+
 #### 대괄호를 통해 키의 값 불러오기
+
 ```python
 grades = {"Joel": 80, "Tim": 95}
 joels_grade = grades["Joel"]  # 80이 저장됨.
 ```
+
 딕셔너리에 존재하지 않는 키를 입력하면 KeyError가 발생하니 주의하자.
 <br/>
+
 #### in을 이용해 키의 존재 여부를 확인
+
 ```python
 exist1 = "Joel" in grades   #True
 exist2 = "Kate" in grades   #False
 ```
+
 #### 대괄호를 사용해 키와 값을 수정하거나 넣어주기
+
 ```python
 grades["Tim"] = 99   # 기존의 값을 수정
 grades["Kate"] = 100   # Kate키를 가진 새로운 값 추가
 ```
 
 #### 딕셔너리의 모든 값을 살펴보기
+
 ```python
 grades_keys = grades.keys()  # 키에 대한 리스트
 grades_values = grades.values()  # 값에 대한 리스트
@@ -206,6 +276,7 @@ grades_items = grades.items()  # (key, value) 튜플에 대한 리스트
 "Kate" in grades_keys  # True. 그러나 리스트에서 사용하는 in은 속도가 느리다. O(n)
 "Kate" in grades       # True. O(1) 훨씬 빠르다.
 ```
+
 리스트보다 딕셔너리에서 in을 사용하는 것이 훨씬 빠르니 알아두자.
 
 <br/>
@@ -225,6 +296,7 @@ for word in document:
 ```
 
 리스트, 딕션너리 혹은 직접 만든 함수를 인자에 넣어줄 수도 있다.
+
 ```python
 dd_list = defaultdict(list)         # list()는 빈 리스트를 생성
 dd_list[2].append(1)                # 이제 dd_list는 {2: [1]}을 포함
@@ -239,6 +311,7 @@ dd_pair[2][1] = 1                   # dd_pair는 {2: [0,1]}을 포함
 <br/>
 
 ### 12. Counter
+
 Counter는 연속된 값을 defalutdict(int)와 유사한 객체로 변환해주면, 키와 값의 빈도를 연결시켜준다.
 
 ```python
@@ -247,12 +320,14 @@ c = Counter([0, 1, 2, 0])  # c는 {0: 2, 1: 1, 2: 1} 이 된다.
 ```
 
 특정 문서에서 단어의 개수를 셀 때도 유용하다.
+
 ```python
 # document는 단어의 리스트
 word_counts = Counter(document)
 ```
 
 Counter 객체에는 most_common 메소드가 있는데, 빈도에 관련된 함수이다.
+
 ```python
 # 가장 자주 나오는 단어 10개와 이 단어들의 빈도수를 출력
 for word, count in word_counts.most_common(10):
@@ -284,7 +359,6 @@ Set에는 장점이 있다. 첫째로 in이 굉장히 빨리 작동한다는 점
 두 번째로 중복된 원소를 제거해준다는 점이 있다. 그러나 Set보다 리스트이 더 많이 사용된다.
 
 <br/>
-
 
 ### 14. 흐름 제어
 
@@ -400,7 +474,7 @@ square_dict = {x: x*x for x in range(5)}  # {0: 0, 1:1, 2:4, 3:9, 4:16}
 square_set = {x*x for x in [1, -1]}       # {1}
 ```
 
-리스트에서 불필요한 값은 _(밑줄)로 표시한다.
+리스트에서 불필요한 값은 \_(밑줄)로 표시한다.
 
 ```python
 zeros = [0 for _ in range(5)]   # [0, 0, 0, 0, 0]
@@ -437,6 +511,7 @@ assert는 조건이 충족되지 않는다면 AssertinoError를 반환한다.
 assert 1 + 1 == 2
 assert 1 + 1 == 2, "1 + 1 should equal 2 but didn't"
 ```
+
 위의 두 번째 예시는 조건이 충족되지 않았을 때, 출력하고 싶은 문구를 추가하는 방법이다.
 <br/><br/>
 이번엔 직접 작성한 함수를 테스팅해보자.
@@ -463,20 +538,23 @@ def smallest_item(xs):
 
 <hr/>
 
-파이썬도 다른 언어처럼 클래스를 이용한 객체 지향 프로그래밍이 가능하다. 코드를 깔끔하고 간단하게 작성할 수 있도록 도와줄 것이다.
+파이썬도 다른 언어처럼 클래스를 이용한 객체 지향 프로그래밍이 가능하다. 코드를 깔끔하고 간단하게 작성할 수 있도록 도와줄 것이다. 객체 지향 언어란 실제 세상을 객체로 모델링하는 것을 말하는데 이것을 가능하게 만드는 3대 요소가 있다. Inheritance(상속), Polymorphism(다형성), Visibility(가시성)이 그것이다. 아래의 예를 통해 차례로 살펴보자.
+
+<br/>
+
 모임에 몇 명이 참여했는지 확인하는 CountingClicker 클래스를 만든다고 해보자.
-이 클래스에는 참석자 수를 의미하는 count, count를 증가시키는 click 메소드, count를 반환해주는 read 메소드, 
+이 클래스에는 참석자 수를 의미하는 count, count를 증가시키는 click 메소드, count를 반환해주는 read 메소드,
 count를 0으로 재설정해주는 reset 메소드 등이 있다.
 
 ```python
 class CountingClicker:
     def __init__(self, count = 0):
         self.count = count
-    
+
     # __repr__는 클래스 인스턴스를 문자열 형태로 반환해주는 dunder 메소드
     def __repr__(self):
         return f"CountingClicker(count={self.count})"
-    
+
     def click(self, num_times=1):
         self.count += num_times
 
@@ -511,6 +589,53 @@ class NoResetClicker(CountingClicker):
         pass
 ```
 
+파이썬에는 '\_\_', Name Mangling(일명, 맹글링)이 있는데, 정보은닉의 효과를 만들 수 있다.
+
+```python
+class MyClass:
+    def __init__(self, name):
+        self.__name = name
+```
+
+위와 같이 변수 앞에 맹글링을 넣어 유사한 효과를 볼 수 있다. 아래와 같이 맹글링이 들어간 변수에 직접 접근하게 되면 AttributeError가 발생하게 된다.
+
+```python
+my = MyClass("JH")
+my.__name
+
+>> AttributeError
+```
+
+대신 아래와 같이 메소드를 통해 반환하면 에러 없이 값을 가져올 수 있다.
+
+```python
+class MyClass:
+    def __init__(self, name):
+        self.__name = name
+
+    def getName():
+        return self.__name
+
+my = MyClass("JH")
+print(my.getName())
+```
+
+그 외에도 특수한 예약 함수나 변수, 함수명에도 사용하는데 그 예로는 `__main__` , `__add__` , `__str__` , `__eq__` 등이 있다. 이 중 `__str__` 을 사용하면 자바의 toString()과 같은 효과를 볼 수 있다.
+
+```python
+class MyClass:
+    def __init__(self, name):
+        self.__name = name # 정보은닉
+
+    def __str__(self):
+        return "My name is %s" %(self.__name)
+
+my = MyClass("JH")
+print(my)
+
+>> "My name is JH"
+```
+
 <br/>
 
 ### 20. 이터레이터와 제너레이터
@@ -534,6 +659,7 @@ def generate_range(n):
 for i in generate_range(10):
     print(f"i: {i}")
 ```
+
 반복문은 yield로 반환되는 값이 없을 때까지 반환된 값을 차례로 하나씩 사용한다.
 이는 무한한 수열도 메모리의 제약을 받지 않고 구현할 수 있다는 것을 의미한다.<br/><br/>
 
@@ -570,6 +696,7 @@ for i, name in enumerate(names):
 <hr/>
 
 난수(random number)는 파이썬의 random 모듈을 이용해 생성할 수 있다.
+
 ```python
 import random
 random.seed(10)  # 매번 동일한 결과를 반환해주는 설정
@@ -596,10 +723,11 @@ random.randrange(3, 6)  # 3~5 난수 생성
 ```
 
 random.shuffle() 메소드는 리스트의 항목을 임의의 순서로 섞어준다.
+
 ```python
 myarr = [i for i in range(10)]
 random.shuffle(myarr)
-print(myarr)  # [9, 8, 4, 2, 5, 3, 1, 0, 7, 6] 
+print(myarr)  # [9, 8, 4, 2, 5, 3, 1, 0, 7, 6]
 # 사람마다 순서는 다 다를 것이다.
 ```
 
@@ -621,7 +749,7 @@ winning_numbers = random.sample(lottery_numbers, 6)
 
 <br/>
 
-### 22.  정규표현식
+### 22. 정규표현식
 
 정규표현식(regular expressions, regex)를 사용하면 문자열을 찾을 수 있다.
 
@@ -633,17 +761,16 @@ re_examples = [
     re.search("a", "cat"),
     not re.search("c", "dog"),
     3 == len(re.split("[ab]", "carbs")),
-    
+
     "R-D-" == re.sub("[0-9]", "-", "R2D2")
 ]
 
 assert all(re_examples), "all the regex examples should be True"
 ```
 
-re.match 메소드는 문자열의 시작이 정규표현식과 같은지 비교하고, 
+re.match 메소드는 문자열의 시작이 정규표현식과 같은지 비교하고,
 re.search메소드는 문자열 전체에서 정규표현식과 같은 부분이 있는지 찾는다.<br/>
 정규문서: [파이썬 정규표현식](https://docs.python.org/3/library/re.html)
-
 
 <hr/>
 
@@ -658,12 +785,11 @@ for문과 리스트 컴프리헨션으로 충분히 대체할 수 있다.
 
 <br/>
 
-
-### 24. zip과 인자 언패킹 
+### 24. zip과 인자 언패킹
 
 <hr/>
 
-두 개 이상의 리스트를 서로 묶어주고 싶다면 zip을 사용하면 된다. zip은 여러 개의 
+두 개 이상의 리스트를 서로 묶어주고 싶다면 zip을 사용하면 된다. zip은 여러 개의
 리스트를 서로 상응하는 항목의 튜플로 구성된 리스트로 변환해준다.
 
 ```python
@@ -675,7 +801,7 @@ mylist = [pair for pair in zip(list1, list2)]
 letters, numbers = zip(*mylist)
 ```
 
-zip 메소드에서 "*"을 사용하면 인자 언패킹을 할 수 있다. 자주 사용하지는 않는다.
+zip 메소드에서 "\*"을 사용하면 인자 언패킹을 할 수 있다. 자주 사용하지는 않는다.
 
 <br/>
 
@@ -689,7 +815,7 @@ zip 메소드에서 "*"을 사용하면 인자 언패킹을 할 수 있다. 자�
 def double(f):
     def g(x):
         return 2 * f(x)
-    
+
     # 새로운 함수를 반환
     return g
 
@@ -711,6 +837,7 @@ try:
 except TypeError:
     print("as defined, g only takes one argument")
 ```
+
 인자를 2개 받을 때의 문제를 해결하기 위해서는 임의의 수의 인자를 받는 함수를 만들어줘야 한다.
 인자 언패킹을 사용하면 임의의 수의 인자를 받는 함수를 만들 수 있다.
 
@@ -725,14 +852,14 @@ myfunc(1, 2, key="word", key2="word2")
 args는 이름이 없는 인자로 구성된 튜플이고, kwargs는 이름이 주어진 인자로 구성된 딕셔너리다.
 반대로, 정해진 인자가 있는 함수를 호출할 때도 리스트나 딕셔너리로 인자를 전달할 수 있다.
 
-````python
+```python
 def other_way_func(x, y, z):
     return x + y + z
 
 x_y_list = [1, 2]
 z_dict = {"z": 3}
 assert other_way_func(*x_y_list, **z_dict) == 6, "1 + 2 + 3 should be 6"
-````
+```
 
 이제 마지막으로, 처음 예시로 보여줬던 잘못된 함수를 맞게 고쳐보겠다.
 
@@ -766,7 +893,7 @@ assert add([1,2], [3]) == [1,2,3], "+ is valid for lists"
 assert add("hi ", "there") == "hi there", "+ is valid for strings"
 ```
 
-반면 정적 타입의 언어(C, C++, 자바 등등)은 모든 함수나 객체의 타입을 명시해야하는데, 
+반면 정적 타입의 언어(C, C++, 자바 등등)은 모든 함수나 객체의 타입을 명시해야하는데,
 파이썬에서도 타입을 명시할 수 있는 기능이 있다. 하지만 이렇게 명시된 타입은 실제로 아무런 기능도 하지 않는다.
 타입이 int로 명시된 함수여도 문자열을 더할 수도 있고 int형과 문자열을 더했다가 TypeError가 발생할 수도 있다.
 하지만 타입을 명시하면 좋은 이유는 4개나 있다.
@@ -776,12 +903,14 @@ assert add("hi ", "there") == "hi there", "+ is valid for strings"
 
 이론적이거나 수학적인 개념을 설명할 때 큰 도움이 된다. 아래의 코드를 살펴보자.
 두 번째의 함수가 활용할 때 도움이 될만한 정보를 제공한다.
+
 ```python
 def dot_product(x, y): ...
 
 # Vector라는 것을 사전에 정의했다고 가정.
 def dot_product(x: Vector, y: Vector): ...
 ```
+
 <br/>
 
 - 에러검사에 도움이 된다
@@ -803,7 +932,7 @@ from typing import Union
 
 def secretly_ugly_function(value, operation): ...
 
-def ugly_function(value: int, 
+def ugly_function(value: int,
                   operation: Union[str, int, float, bool]) -> int: ...
 ```
 
@@ -815,7 +944,6 @@ def ugly_function(value: int,
 
 자동 완성 기능을 사용할 수 있고, 타입 에러 또한 사전에 잡아낼 수 있다.
 또한, 코드를 더 빠르게 작성할 수 있게 도와준다.
-
 
 <br/>
 
@@ -889,3 +1017,107 @@ def total(xs: Numbers) -> Number:
 ```
 
 <br/>
+
+### 27. 파일 다루기
+
+<hr/>
+
+기본적인 파일 종류로는 text파일과 binary 파일이 있다. 컴퓨터는 text파일을 처리하기 위해 binary 파일로 변환시킨다.
+
+|                                                                          Binary 파일                                                                          |                                                                   Text 파일                                                                   |
+| :-----------------------------------------------------------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------: |
+| 컴퓨터만 이해할 수 있는 형태인<br/>이진형식으로 된 파일이다. <br/><br/>일반적으로 메모장을 열면<br/>내용이 깨져 보인다.<br/><br/> ex) 엑셀파일, 워드파일 등등 | 인간도 이해할 수 있는 형태인<br/>문자열 형식으로 저장된 파일<br/><br/>메모장으로 열면 내용확인 가능<br/><br/>ex) 메모장, HTML파일, 파이썬코드 |
+
+<br/><br/>
+
+#### Python File I/O
+
+파이선은 파일을 처리하기 위해 `open` 키워드와 `close` 키워드를 사용한다.
+
+```python
+f = open("<파일이름>", "접근 모드")
+f.close()
+```
+
+<br/>
+
+| 접근모드 |                     설명                      |
+| :------: | :-------------------------------------------: |
+|   `r`    |       읽기모드, 이미 있는 파일을 읽음.        |
+|   `w`    |        쓰기모드, 새로운 파일을 생성함.        |
+|   `a`    | 추가모드, 파일의 마지막에 새로운 내용을 추가. |
+
+<br/>
+
+- 파이썬 File Read
+
+```python
+f = open("myfile.txt", "r" )
+contents = f.read()
+print(contents)
+f.close()
+```
+
+<br/>
+
+with를 이용해 파일을 사용할 수 있다.
+
+```python
+with open("myfile.txt", "r") as myfile:
+contents = myfile.read()
+print(type(contents), contents)
+```
+
+<br/>
+
+한 줄씩 읽어 List로 변환하는 것도 가능하다.
+
+```python
+with open("myfile.txt", "r") as myfile:
+content_list = myfile.readlines() #파일 전체를 list로 반환
+print(type(content_list)) #Type 확인
+print(content_list) #리스트 값 출력
+```
+
+<br/>
+
+아래는 파일의 통계 정보를 산출하는 코드이다. 글자의 개수, 단어의 개수, 줄의 개수를 출력해준다.
+
+```python
+with open("myfile.txt", "r") as myfile:
+    contents = my_file.read()
+    word_list = contents.split(" ")
+    #빈칸 기준으로 단어를 분리 리스트
+    line_list = contents.split("\n")
+    #한줄 씩 분리하여 리스트
+print("Total Number of Characters :", len(contents))
+print("Total Number of Words:", len(word_list))
+print("Total Number of Lines :", len(line_list))
+```
+
+<br/>
+
+- 파이썬 File Write
+
+`w` 모드는 파일을 새로 작성하는 모드이다. encoding 옵션을 통해 "uft-8" 등의 인코딩 방식을 정할 수 있다. `file.write()` 메소드를 통해 파일에 기록할 수 있다.
+
+```python
+f = open("myfile.txt", 'w', encoding="utf8")
+for i in range(1, 11):
+    data = "%d번째 줄입니다.\n" % i
+    f.write(data)
+f.close()
+```
+
+`a` 는 파일을 새로 생성하는 것이 아니라, 추가하는 모드이다.
+
+```python
+with open("myfile.txt", 'a', encoding="utf8") as f:
+for i in range(11, 21):
+    data = "%d번째 줄입니다.\n" % i
+f.write(data)
+```
+
+<br/>
+
+#### 파이썬 directory 다루기
