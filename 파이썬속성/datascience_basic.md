@@ -1121,3 +1121,385 @@ f.write(data)
 <br/>
 
 #### 파이썬 directory 다루기
+
+os 모듈을 이용해 디렉토리를 생성할 수 있다.
+
+```python
+import os
+# log라는 폴더를 생성함
+try:
+    os.mkdir("log")
+except FileExistsError as e:
+    print("Already created")
+
+# log라는 폴더가 있는지 확인
+print(os.path.exists("log"))
+```
+
+<br/>
+
+shutil 모듈을 이용하면 소스파일을 복사할 수 있음.
+
+```python
+import os
+import shutil
+
+source = "myfile.txt"
+# os.path.join을 통해 경로를 만듬.
+dest = os.path.join("log", "text.txt")
+
+# log 디렉토리에 있는 source파일을 dest경로로 복사붙여넣기
+shutil.copy(source, dest)
+```
+
+<br/>
+
+최근에는 **pathlib 모듈**을 사용해 path를 객체로 다루는 편이다.
+
+```python
+import pathlib
+
+# Current Working Directory - 현재 작업 경로
+cwd = pathlib.Path.cwd()
+# 부모폴더까지만 반환
+cwd.parent
+# 조부모폴더까지만 반환
+cwd.parent.parent
+
+# 경로를 리스트로 반환
+list(cwd.parent.parents)
+
+# 일치하는 모든 파일을 산출
+list(cwd.glob("*"))
+```
+
+<br/>
+
+> 로그파일 만들기 예제
+
+```python
+import os
+
+if not os.path.isdir("log"):
+    os.mkdir("log")
+if not os.path.exists("log/count_log.txt"):
+    f = open("log/count_log.txt", "w", encoding="utf-8")
+    f.write("기록이 시작됩니다.\n")
+    f.close()
+
+with open("log/count_log.txt", "a", encoding="utf-8") as f:
+    import random, datetime
+    for i in range(1, 11):
+        stamp = str(datetime.datetime.now())
+        value = random.random() * 1_000_000
+        log_line = stamp + "\t" + str(value) + "값이 생성되었습니다." + "\n"
+        f.write(log_line)
+```
+
+<br/>
+
+#### 파이썬 객체를 영속화
+
+Pickle은 텍스트 데이터가 아닌 파이썬 객체 자체를 파일로 저장할 때 사용하는 모듈이다. 리스트, 클래스 등의 파이썬 객체를 pickle 확장자 파일에 바이너리 형태로 저장한다. 이 과정을 영속화라고 한다.
+
+```python
+import pickle
+
+f = open("list.pickle", "wb")
+test = [1, 2, 3, 4, 5]
+# test객체를 바이너리 파일로 저장
+pickle.dump(test, f)
+f.close()
+```
+
+```python
+f = open("list.pickle", "rb") # read binary
+test_pickle = pickle.load(f)
+print(test_pickle)
+f.close()
+```
+
+<br/><br/>
+
+### 28. Logging
+
+<hr/>
+
+**로그**란 프로그램이 실행되는 동안 일어나는 일들(유저의 접근, 프로그램의 예외처리, 특정 함수의 사용 등)을 기록으로 남긴 결과물을 말한다. Console 화면에 출력하거나 파일에 기록해놓는 방식, DB에 기록하는 방식으로 로그를 남길 수 있다.<br/>
+이렇게 기록된 로그를 분석해 의미있는 결과를 만들 수도 있고, 버그를 처리하는데 큰 도움이 될 수 있다. 로그를 남기는 시점이 중요한데, 유저를 분석하고 싶다면 실행시점에 로그를 남겨야한다. 반면 에러를 사전에 잡아내는 것이 목적이라면 개발시점에 로그를 남기는 것이 좋다.
+
+<br/><br/>
+
+- 파이썬의 기본 Log 관리 모듈
+
+로그를 남기고 싶다면 `logging` 모듈을 사용하면 된다. 또한, 로그에는 레벨이 있는데 그 순서는 다음과 같다. `Debug > Info > Warning > Error > Critical`
+
+```python
+import logging
+
+# Log Level
+# 아래로 갈수록 심각한 상황
+logging.debug("디버그")
+logging.info("정보를 알려줌")
+logging.warning("주의시킴")
+logging.error("에러 발생을 알려줌")
+logging.critical("프로그램이 완전히 종료되었을 때")
+```
+
+<br/>
+
+|  Level   |                                               설명                                               |                          예시                          |
+| :------: | :----------------------------------------------------------------------------------------------: | :----------------------------------------------------: |
+|  debug   |                       개발 시 처리 기록을 <br/>남겨야하는 로그 정보를 남김                       |      함수로 어떤 것을 호출하는지<br/>변수의 변경       |
+|   info   |                                처리가 진행되는 동안의 정보를 알림                                | 서버시작됨<br/>서버종료됨<br/>사용자가 프로그램에 접속 |
+| warning  | 사용자가 잘못 입력한 정보나 처리는 가능하나<br/> 원래 개발시 의도치 않는 정보가 들어왔을 때 알림 |       int형 입력이 필요한데<br/>str 입력을 할 때       |
+|  error   |              잘못된 처리로 인해 에러가 났으나<br/> 프로그램은 동작할 수 있음을 알림              |                  외부서비스 연결 불가                  |
+| critical |           잘못된 처리로 데이터 손실이나 <br/>더 이상 프로그램이 동작할 수 없음을 알림            |  잘못된 접근으로 파일삭제<br/>사용자에 의한 강제 종료  |
+
+<br/>
+
+```python
+import logging
+
+# Logger 선언
+logger = logging.getLogger("main")
+
+# Logger의 output 방법 선언
+stream_hander = logging.StreamHandler()
+
+# Logger의 output 등록
+logger.addHandler(stream_hander)
+
+# Logger에 Level 부여 - 디폴트는 warning 레벨이다.
+# DEBUG 레벌부터 출력시키기(모든 레벨 출력됨)
+# logger.setLevel(logging.DEBUG)  # 예전 방식
+logger.basicConfig(level=logging.DEBUG)
+
+# INFO 레벌부터 출력시키기(DEBUG를 제외한 모든 레벨 출력됨)
+logger.basicConfig(level=logging.INFO)
+```
+
+<br/>
+
+- configparser
+
+프로그램 실행 설정을 file에 저장한다. Section, Key, Value 값의 형태로 설정된 설정 파일을 사용하는데 설정파일을 Dict Type으로 호출 후 사용한다.
+
+> ex
+>
+> > example.cfg
+
+```
+[SectionOne]             => Section은 대괄호로 구분
+Status: Single
+Name: Derek
+Value: Yes
+Age: 30
+Single: True
+
+[SectionTwo]
+FavoriteColor = Green
+
+[SectionThree]
+FamilyName: Johnson
+```
+
+> > 파이썬 코드
+
+```python
+import configparser
+
+config = configparser.ConfigParser()
+# 파일을 읽어옴
+config.read('example.cfg')
+print(config.sections())
+
+print(config['SectionTwo'])
+for key in config['SectionTwo']:
+    value = config['SectionTwo'][key]
+    print(key, ":", value)
+```
+
+> > 실행결과
+
+```
+>> ['SectionOne', 'SectionTwo', 'SectionThree']
+>> <Section: SectionTwo>
+>> favoritecolor : Green
+```
+
+<br/>
+
+- argparse
+
+Console 창에서 프로그램을 실행할 때 Setting 정보를 저장한다. 거의 모든 Console 기반 Python 프로그램을 기본으로 제공한다. 다른 특수 모듈도 많지만 일반적으로 argparse를 사용한다. Command-Line Option이라고도 불린다.
+
+> arg_sum.py
+
+```python
+import argparse
+
+parser = argparse.ArgumentParser(description="Sum two integers")
+
+#                 #짧은이름  #긴 이름   #표시명   #Help설명    # Argument Type
+parser.add_argument("-a", "--a_value", dest="A_value", help="A integers", type=int, required=True)
+parser.add_argument("-b", "--b_value", dest="B_value", help="A integers", type=int, required=True)
+
+args = parser.parse_args()
+print(args)
+print(args.a)
+print(args.b)
+print(args.a + args.b)
+```
+
+`python arg_sum.py -a 10 -b 10` 라는 명령어로 실행해보자.
+
+> 결과
+
+```
+>> Namespace(a=10, b=10)
+>> 10
+>> 10
+>> 20
+```
+
+참고자료: [argparse 구문 jupyter에서 사용하기](https://ddiri01.tistory.com/302)
+
+<br/>
+
+- Logging formmater
+
+Log의 결과값의 format을 미리 지정하는 방법이 있는데, Formatter() 메소드를 사용하면 된다.
+
+```python
+formatter = logging.Formatter("%(asctime)s %(levelname)s %(process)d %(message)s")
+```
+
+위와 같이 설정해주면
+`2022-03-27 13:53:04, 385 ERROR 4410 ERROR occurred` 와 같은 형식으로 로그가 기록된다.
+
+<br/>
+
+- Log config file
+
+config 파일을 통해 로그의 포맷을 설정할 수 있다.
+
+> logging.conf
+
+```
+[loggers]
+keys=root
+
+[handlers]
+keys=consoleHandler
+
+[formatters]
+keys=simpleFormatter
+
+[logger_root]
+level=DEBUG
+handlers=consoleHandler
+
+[handler_consoleHandler]
+class=StreamHandler
+level=DEBUG
+formatter=simpleFormatter
+args=(sys.stdout,)
+
+[formatter_simpleFormatter]
+format=%(asctime)s - %(name)s - %(levelname)s - %(message)s
+datefmt=%m/%d/%Y %I:%M:%S %p
+```
+
+> 파이썬으로 가져오기
+
+```python
+logging.config.fileConfig('logging.conf')
+logger = logging.getLogger()
+```
+
+<br/><br/>
+
+### 29. Python Data Handling
+
+<hr/>
+
+1. Comma Separate Value
+
+CSV, 필드를 쉼표(,)로 구분한 텍스트 파일이다. 엑셀 양식의 데이터를 프로그램에 상관없이 쓰기 위한 데이터 형식이라고 보면 된다. 탭(TSV), 빈칸(SSV) 등으로 구분해서 만들기도 한다. 통칭하여 character-separated values (CSV)라고 부른다. 엑셀에서는 “다른 이름으로 저장하기” 기능으로 사용 가능하다.
+
+<br/>
+
+> CSV 읽기 예제
+
+```python
+line_counter = 0
+data_header = []
+customer_list = []
+
+with open("csv/customers.csv") as customer_data:
+    while True:
+        data = customer_data.readline()
+        if not data: break
+
+        if line_counter == 0:
+            data_header = data.split(",")
+        else:
+            customer_list.append((data.split(",")))
+        line_counter += 1
+
+print("Header: \t", data_header)
+for i in range(0, 10):
+    print("Data", i, ":\t\t", customer_list[i])
+print(len(customer_list))
+```
+
+> CSV 쓰기 예제
+
+```python
+line_counter = 0
+data_header = []
+employee = []
+customer_USA_only_list = []
+customer = None
+
+with open ("csv/customers.csv", "r") as customer_data:
+    while True:
+        data = customer_data.readline()
+        if not data: break
+
+        if line_counter==0:
+            data_header = data.split(",")
+        else:
+            customer = data.split(",")
+            if customer[10].upper() == "USA": #customer 데이터의 offset 10번째 값
+                customer_USA_only_list.append(customer) #즉 country 필드가 “USA” 것만
+
+        line_counter+=1 #sutomer_USA_only_list에 저장
+
+print ("Header :\t", data_header)
+for i in range(0,10):
+    print ("Data :\t\t",customer_USA_only_list[i])
+    print (len(customer_USA_only_list))
+with open ("csv/customers_USA_only.csv", "w") as customer_USA_only_csv:
+    for customer in customer_USA_only_list:
+        customer_USA_only_csv.write(",".join(customer).strip('\n')+"\n")
+```
+
+- CSV 객체 활용
+
+Text 파일형태로 데이터 처리시 문장 내에 있는 “,” 등에 대해 전처리 과정이 필요하다. 이때 사용하는 것이 CSV 모듈인데, 파이썬에서는 CSV 파일을 처리하기 위해 csv 객체를 제공한다.
+
+<br/>
+ 
+_주의사항: 한글로 되어있는 파일은 깨질 수 있기 때문에 따로 한글 처리가 필요_
+
+```python
+import csv
+reader = csv.reader(f,
+delimiter=',', quotechar='"',
+quoting=csv.QUOTE_ALL)
+```
+
+<br/>
+<br/>
